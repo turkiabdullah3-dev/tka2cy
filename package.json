@@ -1,0 +1,22 @@
+{
+  "name": "turki-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal cybersecurity portfolio and private command center — Phase 1",
+  "workspaces": [
+    "backend",
+    "apps/public-site",
+    "apps/admin-console"
+  ],
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:public": "cd apps/public-site && npm run dev",
+    "dev:admin": "cd apps/admin-console && npm run dev",
+    "build:public": "cd apps/public-site && npm run build",
+    "build:admin": "cd apps/admin-console && npm run build",
+    "db:init": "cd backend && npm run db:init"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+.npm
+
+# Environment files — NEVER commit these
+.env
+.env.local
+.env.production
+*.env
+
+# Build outputs
+dist/
+build/
+.vite/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Session and runtime
+*.pid
+
+# Secrets
+*.pem
+*.key
+*.crt
