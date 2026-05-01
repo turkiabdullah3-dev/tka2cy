@@ -85,12 +85,12 @@ const IconLogout = () => (
 const navItems = [
   { to: '/security/dashboard', label: 'Overview', icon: <IconGrid /> },
   { to: '/security/siem', label: 'SIEM Events', icon: <IconShield /> },
+  { to: '/security/analytics', label: 'Analytics', icon: <IconChart /> },
+  { to: '/security/tasks', label: 'Tasks', icon: <IconTask /> },
   { to: '/security/settings', label: 'Settings', icon: <IconGear /> },
 ]
 
 const disabledItems = [
-  { label: 'Analytics', icon: <IconChart /> },
-  { label: 'Tasks', icon: <IconTask /> },
   { label: 'Applications', icon: <IconApp /> },
   { label: 'Job Intelligence', icon: <IconBriefcase /> },
   { label: 'AI Cyber Analyst', icon: <IconRobot /> },

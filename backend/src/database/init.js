@@ -27,36 +27,30 @@ async function initDatabase() {
     const schemaPath = join(__dirname, 'schema.sql');
     const schemaSql = readFileSync(schemaPath, 'utf8');
 
-    // Split on statements but handle the ALTER TABLE carefully
-    // Execute the full schema as a single transaction
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
+    // Run each statement individually so a duplicate-object error on re-init
+    // does not roll back the entire schema (e.g. new Phase 2 tables).
+    const IGNORABLE_CODES = new Set(['42P07', '42710', '42P16']);
 
-      // Execute statements individually to handle IF NOT EXISTS properly
-      const statements = schemaSql
-        .split(';')
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0);
+    const statements = schemaSql
+      .split(';')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
 
-      for (const statement of statements) {
-        await client.query(statement);
+    let applied = 0;
+    let skipped = 0;
+    for (const statement of statements) {
+      try {
+        await pool.query(statement);
+        applied++;
+      } catch (err) {
+        if (IGNORABLE_CODES.has(err.code)) {
+          skipped++;
+        } else {
+          console.error('[INIT] Schema statement error:', err.message, '\nStatement:', statement.slice(0, 80));
+        }
       }
-
-      await client.query('COMMIT');
-      console.log('[INIT] Schema applied successfully.');
-    } catch (err) {
-      await client.query('ROLLBACK');
-      // Constraint already exists errors are acceptable
-      if (err.code === '42P07' || err.code === '42710' || err.code === '42P16') {
-        console.log('[INIT] Schema objects already exist, skipping.');
-      } else {
-        console.error('[INIT] Schema error:', err.message);
-        // Don't exit - some errors (like duplicate constraint) are expected on re-init
-      }
-    } finally {
-      client.release();
     }
+    console.log(`[INIT] Schema applied: ${applied} statements executed, ${skipped} already existed.`);
   } catch (err) {
     console.error('[INIT] Failed to read schema file:', err.message);
     process.exit(1);

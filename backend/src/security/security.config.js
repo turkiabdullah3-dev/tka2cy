@@ -33,6 +33,11 @@ export const EVENT_TYPES = {
   SENSITIVE_PATH_SCAN: 'sensitive_path_scan',
   RATE_LIMIT_TRIGGERED: 'rate_limit_triggered',
   SERVER_ERROR: 'server_error',
+  // Phase 2 — task operational events
+  TASK_CREATED: 'task_created',
+  TASK_UPDATED: 'task_updated',
+  TASK_COMPLETED: 'task_completed',
+  TASK_DELETED: 'task_deleted',
 };
 
 export const SESSION_DURATION = 8 * 60 * 60 * 1000; // 8 hours in milliseconds

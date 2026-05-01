@@ -17,6 +17,8 @@ import authRoutes from './modules/auth/auth.routes.js';
 import siemRoutes from './modules/siem/siem.routes.js';
 import publicRoutes from './modules/public/public.routes.js';
 import contactRoutes from './modules/contact/contact.routes.js';
+import analyticsRoutes from './modules/analytics/analytics.routes.js';
+import tasksRoutes from './modules/tasks/tasks.routes.js';
 
 const app = express();
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -139,6 +141,10 @@ app.use('/api/public', publicRoutes);
 // Contact is mounted at both /api/public/contact and /api/contact
 app.use('/api/public/contact', contactRoutes);
 app.use('/api/contact', contactRoutes);
+
+// Phase 2 modules
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/tasks', tasksRoutes);
 
 // ────────────────────────────────────────────────────────────
 // Health check (no auth, no rate limit)

@@ -6,6 +6,8 @@ import LoadingSpinner from './components/ui/LoadingSpinner'
 import LoginPage from './pages/LoginPage'
 import DashboardOverview from './pages/DashboardOverview'
 import SiemEventsPage from './pages/SiemEventsPage'
+import AnalyticsPage from './pages/AnalyticsPage'
+import TasksPage from './pages/TasksPage'
 import SettingsPage from './pages/SettingsPage'
 import NotFound from './pages/NotFound'
 
@@ -44,6 +46,8 @@ function AppRoutes() {
         <Route element={<DashboardLayout />}>
           <Route path="/security/dashboard" element={<DashboardOverview />} />
           <Route path="/security/siem" element={<SiemEventsPage />} />
+          <Route path="/security/analytics" element={<AnalyticsPage />} />
+          <Route path="/security/tasks" element={<TasksPage />} />
           <Route path="/security/settings" element={<SettingsPage />} />
           <Route path="/security/*" element={<NotFound />} />
         </Route>

@@ -3,6 +3,7 @@ import { validationResult } from 'express-validator';
 import { contactRateLimit } from '../../middleware/rate-limit.middleware.js';
 import { emitSecurityEvent, getClientIp } from '../siem/siem.service.js';
 import { EVENT_TYPES, SEVERITY_LEVELS } from '../../security/security.config.js';
+import { recordAnalyticsEvent } from '../analytics/analytics.service.js';
 import { contactValidation } from './contact.validation.js';
 import { saveContactMessage } from './contact.service.js';
 
@@ -27,8 +28,8 @@ router.post('/', contactRateLimit, contactValidation, async (req, res, next) => 
     // Persist to database
     await saveContactMessage({ name, email, message, ip_address: ip, user_agent: userAgent });
 
-    // Emit SIEM event
-    await emitSecurityEvent({
+    // Emit SIEM event (fire and forget)
+    emitSecurityEvent({
       source: 'contact.routes',
       event_type: EVENT_TYPES.CONTACT_FORM_SUBMIT,
       severity: SEVERITY_LEVELS.INFO,
@@ -39,7 +40,16 @@ router.post('/', contactRateLimit, contactValidation, async (req, res, next) => 
       status_code: 201,
       message: `Contact form submitted by ${name} <${email}>`,
       metadata: { name, email },
-    });
+    }).catch(() => {});
+
+    // Record analytics event
+    recordAnalyticsEvent({
+      event_type: 'contact_form_submit',
+      page: '/contact',
+      ip_address: ip,
+      user_agent: userAgent,
+      referrer: req.headers['referer'] || null,
+    }).catch(() => {});
 
     return res.status(201).json({ message: 'Message received. Thank you.' });
   } catch (err) {
