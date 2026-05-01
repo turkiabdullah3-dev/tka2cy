@@ -12,6 +12,7 @@ const BCRYPT_ROUNDS = 12;
 
 async function initDatabase() {
   console.log('[INIT] Starting database initialization...');
+  let hasFatalInitError = false;
 
   // 1. Test connection
   try {
@@ -46,11 +47,18 @@ async function initDatabase() {
         if (IGNORABLE_CODES.has(err.code)) {
           skipped++;
         } else {
+          hasFatalInitError = true;
           console.error('[INIT] Schema statement error:', err.message, '\nStatement:', statement.slice(0, 80));
         }
       }
     }
     console.log(`[INIT] Schema applied: ${applied} statements executed, ${skipped} already existed.`);
+
+    if (hasFatalInitError) {
+      console.error('[INIT] Fatal schema errors detected. Database initialization aborted.');
+      await pool.end();
+      process.exit(1);
+    }
   } catch (err) {
     console.error('[INIT] Failed to read schema file:', err.message);
     process.exit(1);
@@ -79,7 +87,14 @@ async function initDatabase() {
       }
     } catch (err) {
       console.error('[INIT] Failed to create admin user:', err.message);
+      hasFatalInitError = true;
     }
+  }
+
+  if (hasFatalInitError) {
+    console.error('[INIT] Database initialization failed.');
+    await pool.end();
+    process.exit(1);
   }
 
   console.log('[INIT] Database initialization complete.');
