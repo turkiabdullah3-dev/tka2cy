@@ -17,12 +17,7 @@ export default function DashboardOverview() {
   }, [])
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-6"
-    >
+    <motion.div initial={false} className="space-y-6">
       {/* Error banner */}
       {error && (
         <div

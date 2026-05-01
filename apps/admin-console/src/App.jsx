@@ -11,18 +11,22 @@ import TasksPage from './pages/TasksPage'
 import SettingsPage from './pages/SettingsPage'
 import NotFound from './pages/NotFound'
 
+function FullScreenLoadingShell() {
+  return (
+    <div
+      className="min-h-screen flex items-center justify-center"
+      style={{ backgroundColor: '#070709' }}
+    >
+      <LoadingSpinner size="lg" />
+    </div>
+  )
+}
+
 function ProtectedRoute() {
   const { user, loading } = useAuth()
 
   if (loading) {
-    return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: '#070709' }}
-      >
-        <LoadingSpinner size="lg" />
-      </div>
-    )
+    return <FullScreenLoadingShell />
   }
 
   if (!user) {
@@ -33,13 +37,22 @@ function ProtectedRoute() {
 }
 
 function AppRoutes() {
+  const { user, loading } = useAuth()
+
+  if (loading) {
+    return <FullScreenLoadingShell />
+  }
+
   return (
     <Routes>
       {/* Root redirect */}
       <Route path="/" element={<Navigate to="/security/dashboard" replace />} />
 
       {/* Public login */}
-      <Route path="/security/login" element={<LoginPage />} />
+      <Route
+        path="/security/login"
+        element={user ? <Navigate to="/security/dashboard" replace /> : <LoginPage />}
+      />
 
       {/* Protected routes */}
       <Route element={<ProtectedRoute />}>

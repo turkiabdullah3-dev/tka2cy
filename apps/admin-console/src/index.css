@@ -4,11 +4,20 @@
 
 @layer base {
   * { box-sizing: border-box; }
+  html {
+    background-color: #070709;
+    color-scheme: dark;
+  }
   body {
+    min-height: 100vh;
     background-color: #070709;
     color: #e4e4e7;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+  }
+  #root {
+    min-height: 100vh;
+    background-color: #070709;
   }
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: #070709; }

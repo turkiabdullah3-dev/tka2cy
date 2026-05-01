@@ -4,13 +4,21 @@
 
 @layer base {
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+    background-color: #0a0a0a;
+  }
   body {
+    min-height: 100vh;
     background-color: #0a0a0a;
     color: #e4e4e7;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  #root {
+    min-height: 100vh;
+    background-color: #0a0a0a;
   }
   ::selection { background: #e4e4e7; color: #0a0a0a; }
   ::-webkit-scrollbar { width: 4px; }

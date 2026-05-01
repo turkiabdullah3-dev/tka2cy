@@ -13,12 +13,92 @@ import { useAnalytics } from '../hooks/useAnalytics'
 import Card from '../components/ui/Card'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 
+function PlaceholderBar({ width = '100%' }) {
+  return (
+    <div
+      className="rounded"
+      style={{
+        width,
+        height: '10px',
+        backgroundColor: '#1e2028',
+      }}
+    />
+  )
+}
+
+function AnalyticsSkeleton() {
+  return (
+    <>
+      <div className="grid grid-cols-5 gap-4">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <div
+            key={index}
+            className="rounded-lg p-5 flex flex-col gap-3"
+            style={{ backgroundColor: '#141519', border: '1px solid #1e2028', minHeight: '112px' }}
+          >
+            <PlaceholderBar width="42%" />
+            <div style={{ width: '58%', height: '32px', borderRadius: '6px', backgroundColor: '#1a1b22' }} />
+          </div>
+        ))}
+      </div>
+
+      <Card title="Page Views — Last 30 Days">
+        <div className="h-48 flex items-center justify-center">
+          <LoadingSpinner size="sm" />
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-2 gap-4">
+        <Card title="Top Pages">
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="flex items-center justify-between gap-4">
+                <PlaceholderBar width="70%" />
+                <PlaceholderBar width="12%" />
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card title="Events by Type">
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="flex items-center justify-between gap-4">
+                <PlaceholderBar width="44%" />
+                <PlaceholderBar width="12%" />
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      <Card title="Recent Activity" padding="p-0">
+        <div className="px-5 pt-5 pb-3 flex items-center justify-between">
+          <h2 className="text-xs font-mono text-zinc-500 uppercase tracking-widest">Recent Activity</h2>
+          <div
+            style={{ width: '96px', height: '28px', borderRadius: '6px', backgroundColor: '#1a1b22', border: '1px solid #1e2028' }}
+          />
+        </div>
+        <div className="px-5 pb-5 space-y-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="grid grid-cols-[120px_1fr_120px_1fr_160px] gap-4 items-center">
+              <PlaceholderBar width="80%" />
+              <PlaceholderBar width="95%" />
+              <PlaceholderBar width="70%" />
+              <PlaceholderBar width="90%" />
+              <PlaceholderBar width="100%" />
+            </div>
+          ))}
+        </div>
+      </Card>
+    </>
+  )
+}
+
 function KpiCard({ title, value, accent, index }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.07 }}
+      initial={false}
       className="rounded-lg p-5 flex flex-col gap-3"
       style={{ backgroundColor: '#141519', border: '1px solid #1e2028' }}
     >
@@ -74,12 +154,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-6"
-    >
+    <motion.div initial={false} className="space-y-6">
       <div>
         <h1 className="text-sm font-mono text-zinc-300 font-medium">Website Analytics</h1>
         <p className="text-xs text-zinc-600 mt-1">Public visitor activity from the portfolio site</p>
@@ -94,180 +169,181 @@ export default function AnalyticsPage() {
         </div>
       )}
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-5 gap-4">
-        <KpiCard title="Total Events" value={summary?.total ?? (loading ? '…' : 0)} accent="#a1a1aa" index={0} />
-        <KpiCard title="Page Views" value={summary?.pageViews ?? (loading ? '…' : 0)} accent="#6366f1" index={1} />
-        <KpiCard title="Unique Visitors" value={summary?.uniqueVisitors ?? (loading ? '…' : 0)} accent="#8b5cf6" index={2} />
-        <KpiCard title="CV Downloads" value={summary?.cvDownloads ?? (loading ? '…' : 0)} accent="#22c55e" index={3} />
-        <KpiCard title="Contact Forms" value={summary?.contactSubmissions ?? (loading ? '…' : 0)} accent="#f59e0b" index={4} />
-      </div>
+      {loading && !summary && events.length === 0 ? <AnalyticsSkeleton /> : (
+        <>
 
-      {/* Page Views Chart */}
-      <Card title="Page Views — Last 30 Days">
-        {loading && !summary ? (
-          <div className="h-48 flex items-center justify-center">
-            <LoadingSpinner size="sm" />
+          {/* KPI Cards */}
+          <div className="grid grid-cols-5 gap-4">
+            <KpiCard title="Total Events" value={summary?.total ?? (loading ? '…' : 0)} accent="#a1a1aa" index={0} />
+            <KpiCard title="Page Views" value={summary?.pageViews ?? (loading ? '…' : 0)} accent="#6366f1" index={1} />
+            <KpiCard title="Unique Visitors" value={summary?.uniqueVisitors ?? (loading ? '…' : 0)} accent="#8b5cf6" index={2} />
+            <KpiCard title="CV Downloads" value={summary?.cvDownloads ?? (loading ? '…' : 0)} accent="#22c55e" index={3} />
+            <KpiCard title="Contact Forms" value={summary?.contactSubmissions ?? (loading ? '…' : 0)} accent="#f59e0b" index={4} />
           </div>
-        ) : summary?.dailyPageViews?.length > 0 ? (
-          <div className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={summary.dailyPageViews} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e2028" />
-                <XAxis
-                  dataKey="date"
-                  tick={{ fontSize: 10, fill: '#52525b', fontFamily: 'monospace' }}
-                  tickFormatter={(d) => {
-                    const dt = new Date(d)
-                    return `${dt.getMonth() + 1}/${dt.getDate()}`
-                  }}
-                />
-                <YAxis tick={{ fontSize: 10, fill: '#52525b', fontFamily: 'monospace' }} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#141519',
-                    border: '1px solid #1e2028',
-                    borderRadius: '6px',
-                    fontSize: '11px',
-                    fontFamily: 'monospace',
-                    color: '#a1a1aa',
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="count"
-                  stroke="#6366f1"
-                  strokeWidth={2}
-                  dot={false}
-                  activeDot={{ r: 3, fill: '#6366f1' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        ) : (
-          <div className="h-48 flex items-center justify-center">
-            <span className="text-xs font-mono text-zinc-600">No page view data yet</span>
-          </div>
-        )}
-      </Card>
 
-      {/* Top Pages */}
-      <div className="grid grid-cols-2 gap-4">
-        <Card title="Top Pages">
-          {summary?.topPages?.length > 0 ? (
-            <div className="space-y-2">
-              {summary.topPages.map((row, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <span className="text-xs font-mono text-zinc-400 truncate max-w-[70%]">{row.page}</span>
-                  <span className="text-xs font-mono text-zinc-500 tabular-nums">{row.count}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <span className="text-xs font-mono text-zinc-600">No page data yet</span>
-          )}
-        </Card>
+          {/* Page Views Chart */}
+          <Card title="Page Views — Last 30 Days">
+            {summary?.dailyPageViews?.length > 0 ? (
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={summary.dailyPageViews} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e2028" />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 10, fill: '#52525b', fontFamily: 'monospace' }}
+                      tickFormatter={(d) => {
+                        const dt = new Date(d)
+                        return `${dt.getMonth() + 1}/${dt.getDate()}`
+                      }}
+                    />
+                    <YAxis tick={{ fontSize: 10, fill: '#52525b', fontFamily: 'monospace' }} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#141519',
+                        border: '1px solid #1e2028',
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        fontFamily: 'monospace',
+                        color: '#a1a1aa',
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="count"
+                      stroke="#6366f1"
+                      strokeWidth={2}
+                      dot={false}
+                      activeDot={{ r: 3, fill: '#6366f1' }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="h-48 flex items-center justify-center">
+                <span className="text-xs font-mono text-zinc-600">No page view data yet</span>
+              </div>
+            )}
+          </Card>
 
-        <Card title="Events by Type">
-          {summary?.byType?.length > 0 ? (
-            <div className="space-y-2">
-              {summary.byType.map((row, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <EventTypeBadge type={row.event_type} />
-                  <span className="text-xs font-mono text-zinc-500 tabular-nums">{row.count}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <span className="text-xs font-mono text-zinc-600">No events yet</span>
-          )}
-        </Card>
-      </div>
-
-      {/* Recent Events Table */}
-      <Card title="Recent Activity" padding="p-0">
-        <div className="px-5 pt-5 pb-3 flex items-center justify-between">
-          <h2 className="text-xs font-mono text-zinc-500 uppercase tracking-widest">Recent Activity</h2>
-          <select
-            value={eventTypeFilter}
-            onChange={handleFilterChange}
-            className="text-xs font-mono text-zinc-400 rounded px-2 py-1 outline-none"
-            style={{ backgroundColor: '#1a1b22', border: '1px solid #1e2028' }}
-          >
-            {EVENT_TYPES.map((t) => (
-              <option key={t} value={t}>{t || 'All types'}</option>
-            ))}
-          </select>
-        </div>
-
-        {loading ? (
-          <div className="flex justify-center py-8">
-            <LoadingSpinner size="sm" />
-          </div>
-        ) : events.length === 0 ? (
-          <div className="text-center py-8">
-            <span className="text-xs font-mono text-zinc-600">No analytics events yet</span>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs font-mono">
-              <thead>
-                <tr style={{ borderBottom: '1px solid #1e2028' }}>
-                  {['Type', 'Page', 'Visitor', 'Referrer', 'Time'].map((h) => (
-                    <th key={h} className="px-5 py-2 text-left text-zinc-600 font-normal uppercase tracking-wider text-[10px]">{h}</th>
+          {/* Top Pages */}
+          <div className="grid grid-cols-2 gap-4">
+            <Card title="Top Pages">
+              {summary?.topPages?.length > 0 ? (
+                <div className="space-y-2">
+                  {summary.topPages.map((row, i) => (
+                    <div key={i} className="flex items-center justify-between">
+                      <span className="text-xs font-mono text-zinc-400 truncate max-w-[70%]">{row.page}</span>
+                      <span className="text-xs font-mono text-zinc-500 tabular-nums">{row.count}</span>
+                    </div>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {events.map((ev, i) => (
-                  <tr
-                    key={ev.id}
-                    className="hover:bg-white/[0.02] transition-colors"
-                    style={{ borderBottom: '1px solid #1e2028' }}
-                  >
-                    <td className="px-5 py-2.5">
-                      <EventTypeBadge type={ev.event_type} />
-                    </td>
-                    <td className="px-5 py-2.5 text-zinc-400 max-w-[160px] truncate">{ev.page || '—'}</td>
-                    <td className="px-5 py-2.5 text-zinc-600">{ev.visitor_id ? ev.visitor_id.slice(0, 8) + '…' : '—'}</td>
-                    <td className="px-5 py-2.5 text-zinc-600 max-w-[140px] truncate">{ev.referrer || '—'}</td>
-                    <td className="px-5 py-2.5 text-zinc-600 whitespace-nowrap">
-                      {new Date(ev.created_at).toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </div>
+              ) : (
+                <span className="text-xs font-mono text-zinc-600">No page data yet</span>
+              )}
+            </Card>
 
-        {/* Pagination */}
-        {pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between px-5 py-3" style={{ borderTop: '1px solid #1e2028' }}>
-            <span className="text-xs font-mono text-zinc-600">
-              Page {pagination.page} of {pagination.totalPages} ({pagination.total} events)
-            </span>
-            <div className="flex gap-2">
-              <button
-                disabled={pagination.page <= 1}
-                onClick={() => handlePageChange(pagination.page - 1)}
-                className="text-xs font-mono text-zinc-400 hover:text-zinc-200 disabled:text-zinc-700 disabled:cursor-not-allowed px-2 py-1 rounded transition-colors"
-                style={{ backgroundColor: '#1a1b22' }}
-              >
-                Prev
-              </button>
-              <button
-                disabled={pagination.page >= pagination.totalPages}
-                onClick={() => handlePageChange(pagination.page + 1)}
-                className="text-xs font-mono text-zinc-400 hover:text-zinc-200 disabled:text-zinc-700 disabled:cursor-not-allowed px-2 py-1 rounded transition-colors"
-                style={{ backgroundColor: '#1a1b22' }}
-              >
-                Next
-              </button>
-            </div>
+            <Card title="Events by Type">
+              {summary?.byType?.length > 0 ? (
+                <div className="space-y-2">
+                  {summary.byType.map((row, i) => (
+                    <div key={i} className="flex items-center justify-between">
+                      <EventTypeBadge type={row.event_type} />
+                      <span className="text-xs font-mono text-zinc-500 tabular-nums">{row.count}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-xs font-mono text-zinc-600">No events yet</span>
+              )}
+            </Card>
           </div>
-        )}
-      </Card>
+
+          {/* Recent Events Table */}
+          <Card title="Recent Activity" padding="p-0">
+            <div className="px-5 pt-5 pb-3 flex items-center justify-between">
+              <h2 className="text-xs font-mono text-zinc-500 uppercase tracking-widest">Recent Activity</h2>
+              <select
+                value={eventTypeFilter}
+                onChange={handleFilterChange}
+                className="text-xs font-mono text-zinc-400 rounded px-2 py-1 outline-none"
+                style={{ backgroundColor: '#1a1b22', border: '1px solid #1e2028' }}
+              >
+                {EVENT_TYPES.map((t) => (
+                  <option key={t} value={t}>{t || 'All types'}</option>
+                ))}
+              </select>
+            </div>
+
+            {loading ? (
+              <div className="flex justify-center py-8 min-h-[260px]">
+                <LoadingSpinner size="sm" />
+              </div>
+            ) : events.length === 0 ? (
+              <div className="text-center py-8 min-h-[260px] flex items-center justify-center">
+                <span className="text-xs font-mono text-zinc-600">No analytics events yet</span>
+              </div>
+            ) : (
+              <div className="overflow-x-auto min-h-[260px]">
+                <table className="w-full text-xs font-mono">
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid #1e2028' }}>
+                      {['Type', 'Page', 'Visitor', 'Referrer', 'Time'].map((h) => (
+                        <th key={h} className="px-5 py-2 text-left text-zinc-600 font-normal uppercase tracking-wider text-[10px]">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {events.map((ev, i) => (
+                      <tr
+                        key={ev.id}
+                        className="hover:bg-white/[0.02] transition-colors"
+                        style={{ borderBottom: '1px solid #1e2028' }}
+                      >
+                        <td className="px-5 py-2.5">
+                          <EventTypeBadge type={ev.event_type} />
+                        </td>
+                        <td className="px-5 py-2.5 text-zinc-400 max-w-[160px] truncate">{ev.page || '—'}</td>
+                        <td className="px-5 py-2.5 text-zinc-600">{ev.visitor_id ? ev.visitor_id.slice(0, 8) + '…' : '—'}</td>
+                        <td className="px-5 py-2.5 text-zinc-600 max-w-[140px] truncate">{ev.referrer || '—'}</td>
+                        <td className="px-5 py-2.5 text-zinc-600 whitespace-nowrap">
+                          {new Date(ev.created_at).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Pagination */}
+            {pagination.totalPages > 1 && (
+              <div className="flex items-center justify-between px-5 py-3" style={{ borderTop: '1px solid #1e2028' }}>
+                <span className="text-xs font-mono text-zinc-600">
+                  Page {pagination.page} of {pagination.totalPages} ({pagination.total} events)
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    disabled={pagination.page <= 1}
+                    onClick={() => handlePageChange(pagination.page - 1)}
+                    className="text-xs font-mono text-zinc-400 hover:text-zinc-200 disabled:text-zinc-700 disabled:cursor-not-allowed px-2 py-1 rounded transition-colors"
+                    style={{ backgroundColor: '#1a1b22' }}
+                  >
+                    Prev
+                  </button>
+                  <button
+                    disabled={pagination.page >= pagination.totalPages}
+                    onClick={() => handlePageChange(pagination.page + 1)}
+                    className="text-xs font-mono text-zinc-400 hover:text-zinc-200 disabled:text-zinc-700 disabled:cursor-not-allowed px-2 py-1 rounded transition-colors"
+                    style={{ backgroundColor: '#1a1b22' }}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </Card>
+        </>
+      )}
     </motion.div>
   )
 }

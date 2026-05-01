@@ -40,6 +40,37 @@ function Badge({ label, color }) {
   )
 }
 
+function TaskListSkeleton() {
+  return (
+    <div className="px-5 py-3.5 space-y-3 min-h-[320px]">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div
+          key={index}
+          className="flex items-start gap-4 py-2.5"
+          style={{ borderBottom: index === 5 ? 'none' : '1px solid #1e2028' }}
+        >
+          <div
+            style={{
+              width: '16px',
+              height: '16px',
+              borderRadius: '4px',
+              backgroundColor: '#1a1b22',
+              border: '1px solid #3f3f46',
+              flexShrink: 0,
+              marginTop: '2px',
+            }}
+          />
+          <div className="flex-1 space-y-2">
+            <div style={{ width: '42%', height: '12px', borderRadius: '4px', backgroundColor: '#1e2028' }} />
+            <div style={{ width: '68%', height: '10px', borderRadius: '4px', backgroundColor: '#1a1b22' }} />
+            <div style={{ width: '32%', height: '10px', borderRadius: '4px', backgroundColor: '#16171d' }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function CreateTaskForm({ onCreated, onCancel }) {
   const [form, setForm] = useState({
     title: '',
@@ -183,8 +214,7 @@ function TaskRow({ task, onUpdate, onDelete }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -4 }}
-      animate={{ opacity: 1, x: 0 }}
+      initial={false}
       className="flex items-start gap-4 px-5 py-3.5 group"
       style={{ borderBottom: '1px solid #1e2028' }}
     >
@@ -315,12 +345,7 @@ export default function TasksPage() {
   const completedCount = tasks.filter((t) => t.status === 'completed').length
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-6"
-    >
+    <motion.div initial={false} className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -406,11 +431,9 @@ export default function TasksPage() {
       {/* Task List */}
       <Card padding="p-0">
         {loading ? (
-          <div className="flex justify-center py-10">
-            <LoadingSpinner size="sm" />
-          </div>
+          <TaskListSkeleton />
         ) : tasks.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="text-center py-12 min-h-[320px] flex flex-col items-center justify-center">
             <div className="text-xs font-mono text-zinc-600 mb-2">No tasks found</div>
             {!showCreate && (
               <button
