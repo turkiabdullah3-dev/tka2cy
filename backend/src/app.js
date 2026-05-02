@@ -19,6 +19,7 @@ import publicRoutes from './modules/public/public.routes.js';
 import contactRoutes from './modules/contact/contact.routes.js';
 import analyticsRoutes from './modules/analytics/analytics.routes.js';
 import tasksRoutes from './modules/tasks/tasks.routes.js';
+import applicationsRoutes from './modules/applications/applications.routes.js';
 
 const app = express();
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -145,6 +146,9 @@ app.use('/api/contact', contactRoutes);
 // Phase 2 modules
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/tasks', tasksRoutes);
+
+// Phase 3 modules
+app.use('/api/applications', applicationsRoutes);
 
 // ────────────────────────────────────────────────────────────
 // Health check (no auth, no rate limit)

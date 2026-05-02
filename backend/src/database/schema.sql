@@ -104,3 +104,34 @@ CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
 CREATE INDEX IF NOT EXISTS idx_tasks_priority ON tasks(priority);
 CREATE INDEX IF NOT EXISTS idx_tasks_category ON tasks(category);
 CREATE INDEX IF NOT EXISTS idx_tasks_created_at ON tasks(created_at DESC);
+
+-- ============================================================
+-- Phase 3 tables
+-- ============================================================
+
+-- Job Applications (private manual tracker)
+CREATE TABLE IF NOT EXISTS applications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  company VARCHAR(255) NOT NULL,
+  job_title VARCHAR(255) NOT NULL,
+  job_url TEXT,
+  location VARCHAR(255),
+  source VARCHAR(20) NOT NULL DEFAULT 'manual'
+    CHECK (source IN ('manual', 'linkedin', 'company_site', 'email', 'referral', 'other')),
+  status VARCHAR(20) NOT NULL DEFAULT 'saved'
+    CHECK (status IN ('saved', 'ready_to_apply', 'applied', 'screening', 'interview', 'technical_task', 'offer', 'rejected', 'withdrawn')),
+  priority VARCHAR(10) NOT NULL DEFAULT 'medium'
+    CHECK (priority IN ('low', 'medium', 'high')),
+  job_description TEXT,
+  notes TEXT,
+  applied_at TIMESTAMPTZ,
+  follow_up_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);
+CREATE INDEX IF NOT EXISTS idx_applications_priority ON applications(priority);
+CREATE INDEX IF NOT EXISTS idx_applications_source ON applications(source);
+CREATE INDEX IF NOT EXISTS idx_applications_created_at ON applications(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_applications_follow_up_at ON applications(follow_up_at);

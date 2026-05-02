@@ -38,6 +38,11 @@ export const EVENT_TYPES = {
   TASK_UPDATED: 'task_updated',
   TASK_COMPLETED: 'task_completed',
   TASK_DELETED: 'task_deleted',
+  // Phase 3 — application tracker events
+  APPLICATION_CREATED: 'application_created',
+  APPLICATION_UPDATED: 'application_updated',
+  APPLICATION_STATUS_CHANGED: 'application_status_changed',
+  APPLICATION_DELETED: 'application_deleted',
 };
 
 export const SESSION_DURATION = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
