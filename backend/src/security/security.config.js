@@ -43,6 +43,12 @@ export const EVENT_TYPES = {
   APPLICATION_UPDATED: 'application_updated',
   APPLICATION_STATUS_CHANGED: 'application_status_changed',
   APPLICATION_DELETED: 'application_deleted',
+  // Phase 4 — job intelligence events
+  JOB_ANALYSIS_CREATED: 'job_analysis_created',
+  JOB_ANALYSIS_COMPLETED: 'job_analysis_completed',
+  JOB_ANALYSIS_FAILED: 'job_analysis_failed',
+  JOB_ANALYSIS_DELETED: 'job_analysis_deleted',
+  JOB_PROMPT_INJECTION_SIGNAL: 'job_prompt_injection_signal',
 };
 
 export const SESSION_DURATION = 8 * 60 * 60 * 1000; // 8 hours in milliseconds

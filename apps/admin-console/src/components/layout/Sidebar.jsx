@@ -88,11 +88,11 @@ const navItems = [
   { to: '/security/analytics', label: 'Analytics', icon: <IconChart /> },
   { to: '/security/tasks', label: 'Tasks', icon: <IconTask /> },
   { to: '/security/applications', label: 'Applications', icon: <IconApp /> },
+  { to: '/security/job-intelligence', label: 'Job Intelligence', icon: <IconBriefcase /> },
   { to: '/security/settings', label: 'Settings', icon: <IconGear /> },
 ]
 
 const disabledItems = [
-  { label: 'Job Intelligence', icon: <IconBriefcase /> },
   { label: 'AI Cyber Analyst', icon: <IconRobot /> },
   { label: 'Email Assistant', icon: <IconMail /> },
 ]

@@ -9,6 +9,7 @@ import SiemEventsPage from './pages/SiemEventsPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import TasksPage from './pages/TasksPage'
 import ApplicationsPage from './pages/ApplicationsPage'
+import JobIntelligencePage from './pages/JobIntelligencePage'
 import SettingsPage from './pages/SettingsPage'
 import NotFound from './pages/NotFound'
 
@@ -63,6 +64,7 @@ function AppRoutes() {
           <Route path="/security/analytics" element={<AnalyticsPage />} />
           <Route path="/security/tasks" element={<TasksPage />} />
           <Route path="/security/applications" element={<ApplicationsPage />} />
+          <Route path="/security/job-intelligence" element={<JobIntelligencePage />} />
           <Route path="/security/settings" element={<SettingsPage />} />
           <Route path="/security/*" element={<NotFound />} />
         </Route>

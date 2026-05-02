@@ -20,6 +20,7 @@ import contactRoutes from './modules/contact/contact.routes.js';
 import analyticsRoutes from './modules/analytics/analytics.routes.js';
 import tasksRoutes from './modules/tasks/tasks.routes.js';
 import applicationsRoutes from './modules/applications/applications.routes.js';
+import jobIntelligenceRoutes from './modules/job-intelligence/jobIntelligence.routes.js';
 
 const app = express();
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -89,7 +90,7 @@ if (NODE_ENV === 'development') {
 // ────────────────────────────────────────────────────────────
 // Body parsers
 // ────────────────────────────────────────────────────────────
-app.use(express.json({ limit: '10kb' }));
+app.use(express.json({ limit: '50kb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // ────────────────────────────────────────────────────────────
@@ -149,6 +150,9 @@ app.use('/api/tasks', tasksRoutes);
 
 // Phase 3 modules
 app.use('/api/applications', applicationsRoutes);
+
+// Phase 4 modules
+app.use('/api/job-intelligence', jobIntelligenceRoutes);
 
 // ────────────────────────────────────────────────────────────
 // Health check (no auth, no rate limit)

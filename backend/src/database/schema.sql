@@ -135,3 +135,33 @@ CREATE INDEX IF NOT EXISTS idx_applications_priority ON applications(priority);
 CREATE INDEX IF NOT EXISTS idx_applications_source ON applications(source);
 CREATE INDEX IF NOT EXISTS idx_applications_created_at ON applications(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_applications_follow_up_at ON applications(follow_up_at);
+
+-- ============================================================
+-- Phase 4 tables
+-- ============================================================
+
+-- Job Analyses (AI-assisted job description analysis)
+CREATE TABLE IF NOT EXISTS job_analyses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  application_id UUID REFERENCES applications(id) ON DELETE SET NULL,
+  job_description TEXT NOT NULL,
+  match_score INTEGER CHECK (match_score >= 0 AND match_score <= 100),
+  fit_level VARCHAR(20) CHECK (fit_level IN ('weak', 'moderate', 'strong', 'excellent')),
+  strengths JSONB DEFAULT '[]',
+  missing_skills JSONB DEFAULT '[]',
+  cv_suggestions JSONB DEFAULT '[]',
+  recommendation VARCHAR(30) CHECK (recommendation IN ('apply', 'apply_after_cv_update', 'skip', 'save_for_later')),
+  reasoning TEXT,
+  model_used VARCHAR(100),
+  warnings JSONB DEFAULT '[]',
+  prompt_injection_signal BOOLEAN NOT NULL DEFAULT FALSE,
+  status VARCHAR(20) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'analyzed', 'failed')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_job_analyses_application_id ON job_analyses(application_id);
+CREATE INDEX IF NOT EXISTS idx_job_analyses_match_score ON job_analyses(match_score);
+CREATE INDEX IF NOT EXISTS idx_job_analyses_fit_level ON job_analyses(fit_level);
+CREATE INDEX IF NOT EXISTS idx_job_analyses_status ON job_analyses(status);
+CREATE INDEX IF NOT EXISTS idx_job_analyses_created_at ON job_analyses(created_at DESC);
