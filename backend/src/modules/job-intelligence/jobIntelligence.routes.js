@@ -12,7 +12,7 @@ import {
   updateAnalysis,
   deleteAnalysis,
 } from './jobIntelligence.service.js';
-import { runAnalysis, detectPromptInjection } from './ai.service.js';
+import { runAnalysis, detectPromptInjection, AI_PROVIDER_FAILURE_MESSAGE } from './ai.service.js';
 
 const router = Router();
 router.use(requireAuth);
@@ -126,7 +126,7 @@ router.post(
           path: req.path,
           method: req.method,
           status_code: 500,
-          message: `Job analysis failed: ${aiErr.message}`,
+          message: 'Job analysis failed: AI provider request failed',
           metadata: {
             analysis_id: draft.id,
             application_id: application_id || null,
@@ -135,7 +135,7 @@ router.post(
 
         return res.status(500).json({
           error: 'AI analysis failed',
-          detail: aiErr.message,
+          detail: AI_PROVIDER_FAILURE_MESSAGE,
           analysis_id: draft.id,
         });
       }

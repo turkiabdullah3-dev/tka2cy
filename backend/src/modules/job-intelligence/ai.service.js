@@ -1,5 +1,8 @@
 import { TURKI_PROFILE } from '../../config/turki-profile.js';
 
+export const AI_PROVIDER_FAILURE_MESSAGE =
+  'AI provider request failed. Check backend logs and provider configuration.';
+
 const INJECTION_PATTERNS = [
   'ignore previous instructions',
   'ignore all instructions',
@@ -108,9 +111,8 @@ export async function runAnalysis(jobDescription) {
 
   if (!aiApiKey || !aiProvider) {
     if (nodeEnv !== 'development') {
-      throw new Error(
-        'AI analysis is not configured. Set AI_PROVIDER and AI_API_KEY in environment variables.'
-      );
+      console.error('[AI] Analysis requested without provider configuration.');
+      throw new Error(AI_PROVIDER_FAILURE_MESSAGE);
     }
     return buildMockAnalysis();
   }
@@ -119,7 +121,8 @@ export async function runAnalysis(jobDescription) {
     return await callAnthropic(jobDescription, aiApiKey, aiModel || 'claude-haiku-4-5-20251001');
   }
 
-  throw new Error(`Unsupported AI_PROVIDER: "${aiProvider}". Only "anthropic" is currently supported.`);
+  console.error(`[AI] Unsupported AI provider configured: ${aiProvider}`);
+  throw new Error(AI_PROVIDER_FAILURE_MESSAGE);
 }
 
 const FIT_LEVELS = ['weak', 'moderate', 'strong', 'excellent'];
@@ -164,19 +167,21 @@ async function callAnthropic(jobDescription, apiKey, model) {
       body: requestBody,
     });
   } catch (networkErr) {
-    throw new Error(`AI service unreachable: ${networkErr.message}`);
+    console.error('[AI] Anthropic request failed before receiving a response:', networkErr.message);
+    throw new Error(AI_PROVIDER_FAILURE_MESSAGE);
   }
 
   if (!response.ok) {
-    const errText = await response.text().catch(() => '');
-    throw new Error(`Anthropic API error ${response.status}: ${errText.slice(0, 300)}`);
+    console.error(`[AI] Anthropic API returned HTTP ${response.status} ${response.statusText}`);
+    throw new Error(AI_PROVIDER_FAILURE_MESSAGE);
   }
 
   const data = await response.json();
   const rawContent = data.content?.[0]?.text;
 
   if (!rawContent) {
-    throw new Error('Anthropic API returned empty content');
+    console.error('[AI] Anthropic API returned empty content.');
+    throw new Error(AI_PROVIDER_FAILURE_MESSAGE);
   }
 
   // Strip potential markdown fences before parsing
@@ -190,7 +195,8 @@ async function callAnthropic(jobDescription, apiKey, model) {
   try {
     parsed = JSON.parse(cleaned);
   } catch {
-    throw new Error('AI response was not valid JSON. Provider returned unparseable content.');
+    console.error('[AI] Anthropic API returned unparseable JSON content.');
+    throw new Error(AI_PROVIDER_FAILURE_MESSAGE);
   }
 
   return normalizeAiOutput(parsed, model);
