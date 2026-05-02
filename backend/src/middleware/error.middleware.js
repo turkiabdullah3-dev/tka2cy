@@ -16,6 +16,8 @@ import { EVENT_TYPES, SEVERITY_LEVELS } from '../security/security.config.js';
 // eslint-disable-next-line no-unused-vars
 export function errorHandler(err, req, res, next) {
   const isProduction = process.env.NODE_ENV === 'production';
+  const statusCode = err.status || err.statusCode || 500;
+  const isClientError = statusCode >= 400 && statusCode < 500;
 
   // Always log the full error server-side
   console.error('[ERROR]', {
@@ -26,22 +28,29 @@ export function errorHandler(err, req, res, next) {
     ip: getClientIp(req),
   });
 
-  // Emit SIEM event — fire and forget
-  emitSecurityEvent({
-    source: 'error.middleware',
-    event_type: EVENT_TYPES.SERVER_ERROR,
-    severity: SEVERITY_LEVELS.MEDIUM,
-    ip_address: getClientIp(req),
-    user_agent: req.headers['user-agent'],
-    path: req.path,
-    method: req.method,
-    status_code: 500,
-    message: isProduction ? 'Internal server error' : err.message,
-    metadata: {
-      errorName: err.name,
-      ...(isProduction ? {} : { stack: err.stack }),
-    },
-  }).catch(() => {});
+  // Only emit SIEM for server errors, not expected client errors like 413
+  if (!isClientError) {
+    emitSecurityEvent({
+      source: 'error.middleware',
+      event_type: EVENT_TYPES.SERVER_ERROR,
+      severity: SEVERITY_LEVELS.MEDIUM,
+      ip_address: getClientIp(req),
+      user_agent: req.headers['user-agent'],
+      path: req.path,
+      method: req.method,
+      status_code: statusCode,
+      message: isProduction ? 'Internal server error' : err.message,
+      metadata: {
+        errorName: err.name,
+        ...(isProduction ? {} : { stack: err.stack }),
+      },
+    }).catch(() => {});
+  }
+
+  // Client errors (4xx): always return the error message — no stack trace
+  if (isClientError) {
+    return res.status(statusCode).json({ error: err.message });
+  }
 
   if (isProduction) {
     return res.status(500).json({ error: 'Internal server error' });

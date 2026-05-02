@@ -89,8 +89,16 @@ if (NODE_ENV === 'development') {
 
 // ────────────────────────────────────────────────────────────
 // Body parsers
+// 50kb scoped to the analyze endpoint only; all other routes use 10kb.
 // ────────────────────────────────────────────────────────────
-app.use(express.json({ limit: '50kb' }));
+const analyzeBodyParser = express.json({ limit: '50kb' });
+const defaultBodyParser = express.json({ limit: '10kb' });
+app.use((req, res, next) => {
+  if (req.path === '/api/job-intelligence/analyze') {
+    return analyzeBodyParser(req, res, next);
+  }
+  return defaultBodyParser(req, res, next);
+});
 app.use(express.urlencoded({ extended: true }));
 
 // ────────────────────────────────────────────────────────────

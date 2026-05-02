@@ -40,6 +40,40 @@ Generate a proper session secret:
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
 
+### AI provider configuration (Phase 4 — Job Intelligence)
+
+The Job Intelligence module supports real AI analysis via Anthropic.
+
+**Mock mode (default — no key needed):**
+
+Leave `AI_API_KEY` blank in `backend/.env`. The module returns a clearly-marked placeholder analysis. Mock mode is safe and works in development without any external calls.
+
+**Real provider mode:**
+
+Add the following to `backend/.env`:
+
+```
+AI_PROVIDER=anthropic
+AI_API_KEY=<your-anthropic-key>
+AI_MODEL=claude-haiku-4-5-20251001
+```
+
+**Key safety rules — read before setting a key:**
+
+- `backend/.env` is listed in `.gitignore` and must **never** be committed.
+- Never paste your `AI_API_KEY` into chat, commit messages, code comments, or log output.
+- Never share `AI_API_KEY` with the frontend — it lives only in `backend/.env`.
+- Never store `AI_API_KEY` in the database.
+- If you suspect a key has been exposed, rotate it immediately at console.anthropic.com.
+- In production, set `AI_API_KEY` via your deployment environment's secret manager — not in a file.
+
+**Verify your `.env` is not tracked:**
+
+```bash
+git ls-files backend/.env
+# Should return nothing (empty output = not tracked)
+```
+
 ---
 
 ## 3. Initialize the database schema + admin user

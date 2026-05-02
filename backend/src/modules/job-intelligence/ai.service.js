@@ -14,6 +14,7 @@ const INJECTION_PATTERNS = [
   'use hidden tools',
   'you are now',
   'act as if',
+  'expose secrets',
 ];
 
 export function detectPromptInjection(text) {
@@ -121,6 +122,23 @@ export async function runAnalysis(jobDescription) {
   throw new Error(`Unsupported AI_PROVIDER: "${aiProvider}". Only "anthropic" is currently supported.`);
 }
 
+const FIT_LEVELS = ['weak', 'moderate', 'strong', 'excellent'];
+const RECOMMENDATIONS = ['apply', 'apply_after_cv_update', 'skip', 'save_for_later'];
+
+function normalizeAiOutput(parsed, model) {
+  return {
+    match_score: Math.min(100, Math.max(0, parseInt(parsed.match_score, 10) || 0)),
+    fit_level: FIT_LEVELS.includes(parsed.fit_level) ? parsed.fit_level : 'moderate',
+    strengths: Array.isArray(parsed.strengths) ? parsed.strengths.slice(0, 10).map(String) : [],
+    missing_skills: Array.isArray(parsed.missing_skills) ? parsed.missing_skills.slice(0, 10).map(String) : [],
+    cv_suggestions: Array.isArray(parsed.cv_suggestions) ? parsed.cv_suggestions.slice(0, 10).map(String) : [],
+    recommendation: RECOMMENDATIONS.includes(parsed.recommendation) ? parsed.recommendation : 'save_for_later',
+    reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning.slice(0, 2000) : '',
+    warnings: Array.isArray(parsed.warnings) ? parsed.warnings.slice(0, 10).map(String) : [],
+    model_used: model,
+  };
+}
+
 async function callAnthropic(jobDescription, apiKey, model) {
   const requestBody = JSON.stringify({
     model,
@@ -172,21 +190,8 @@ async function callAnthropic(jobDescription, apiKey, model) {
   try {
     parsed = JSON.parse(cleaned);
   } catch {
-    throw new Error('AI response was not valid JSON. Raw snippet: ' + cleaned.slice(0, 200));
+    throw new Error('AI response was not valid JSON. Provider returned unparseable content.');
   }
 
-  const FIT_LEVELS = ['weak', 'moderate', 'strong', 'excellent'];
-  const RECOMMENDATIONS = ['apply', 'apply_after_cv_update', 'skip', 'save_for_later'];
-
-  return {
-    match_score: Math.min(100, Math.max(0, parseInt(parsed.match_score, 10) || 0)),
-    fit_level: FIT_LEVELS.includes(parsed.fit_level) ? parsed.fit_level : 'moderate',
-    strengths: Array.isArray(parsed.strengths) ? parsed.strengths.slice(0, 10).map(String) : [],
-    missing_skills: Array.isArray(parsed.missing_skills) ? parsed.missing_skills.slice(0, 10).map(String) : [],
-    cv_suggestions: Array.isArray(parsed.cv_suggestions) ? parsed.cv_suggestions.slice(0, 10).map(String) : [],
-    recommendation: RECOMMENDATIONS.includes(parsed.recommendation) ? parsed.recommendation : 'save_for_later',
-    reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning.slice(0, 2000) : '',
-    warnings: Array.isArray(parsed.warnings) ? parsed.warnings.slice(0, 10).map(String) : [],
-    model_used: model,
-  };
+  return normalizeAiOutput(parsed, model);
 }
